@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f4d35" />
+  <title>Advanced Field Ecology</title>
+  <style>
+    :root {
+      --green:#1f4d35;
+      --green-2:#2f6b4a;
+      --sage:#eaf3ec;
+      --cream:#f7f8f4;
+      --ink:#1f2a24;
+      --muted:#68756d;
+      --line:#d8e0da;
+      --danger:#a13e3e;
+      --warn:#9a6a11;
+      --white:#ffffff;
+      --radius:16px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#eef5ef 0,#f8f9f6 230px);
+    }
+    .wrap { max-width:860px; margin:0 auto; padding:20px 16px 60px; }
+    .hero {
+      background:linear-gradient(135deg,var(--green),#3e7454);
+      color:white; border-radius:22px; padding:22px; margin-bottom:18px;
+      box-shadow:0 12px 30px rgba(31,77,53,.18);
+    }
+    .hero h1 { margin:0 0 8px; font-size:clamp(1.6rem,5vw,2.25rem); }
+    .hero p { margin:0; opacity:.9; line-height:1.4; }
+    .progress {
+      margin-top:18px; background:rgba(255,255,255,.13); padding:12px; border-radius:14px;
+    }
+    .progress-row { display:flex; justify-content:space-between; gap:12px; font-size:.95rem; }
+    .bar { height:10px; background:rgba(255,255,255,.2); border-radius:999px; margin-top:8px; overflow:hidden; }
+    .bar > div { height:100%; background:white; width:0%; transition:width .25s ease; }
+    .card {
+      background:var(--white); border:1px solid var(--line); border-radius:var(--radius);
+      padding:18px; margin:14px 0; box-shadow:0 5px 14px rgba(20,40,30,.04);
+    }
+    h2 { font-size:1.12rem; margin:0 0 14px; }
+    h3 { font-size:1rem; margin:0; }
+    label { display:block; font-weight:650; font-size:.92rem; margin:0 0 6px; }
+    .hint { color:var(--muted); font-size:.82rem; margin-top:5px; }
+    input, select, textarea {
+      width:100%; padding:12px 13px; border:1px solid #cfd8d1; border-radius:12px;
+      font:inherit; background:white; color:var(--ink);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:3px solid rgba(47,107,74,.14); border-color:var(--green-2);
+    }
+    textarea { min-height:92px; resize:vertical; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    @media (max-width:640px) {
+      .grid2,.grid3 { grid-template-columns:1fr; }
+    }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      border:0; border-radius:12px; padding:12px 16px; font:inherit; font-weight:750;
+      cursor:pointer; text-decoration:none;
+    }
+    .btn-primary { background:var(--green); color:white; }
+    .btn-secondary { background:var(--sage); color:var(--green); }
+    .btn-danger { background:#fbeaea; color:var(--danger); }
+    .btn-wide { width:100%; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .species-card {
+      border:1px solid var(--line); background:#fbfcfa; border-radius:14px; padding:14px; margin:12px 0;
+    }
+    .species-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .calc {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px;
+    }
+    .metric {
+      background:var(--sage); border-radius:12px; padding:12px;
+    }
+    .metric strong { display:block; font-size:1.35rem; color:var(--green); }
+    .metric span { font-size:.79rem; color:var(--muted); }
+    @media (max-width:640px) { .calc { grid-template-columns:1fr 1fr; } }
+    .status { display:none; margin:14px 0; padding:13px 14px; border-radius:12px; font-weight:650; }
+    .status.show { display:block; }
+    .status.ok { background:#e8f4eb; color:#225c37; }
+    .status.err { background:#fbeaea; color:#8f3434; }
+    .sticky {
+      position:sticky; bottom:0; background:rgba(247,248,244,.96); backdrop-filter:blur(8px);
+      border-top:1px solid var(--line); padding:12px 0 calc(12px + env(safe-area-inset-bottom));
+      margin-top:18px;
+    }
+    .tiny { font-size:.8rem; color:var(--muted); }
+    .review { display:none; }
+    .review.show { display:block; }
+    .review table { width:100%; border-collapse:collapse; }
+    .review td { padding:8px 0; border-bottom:1px solid #edf0ed; vertical-align:top; }
+    .review td:first-child { color:var(--muted); width:48%; }
+    .badge {
+      display:inline-block; padding:4px 8px; border-radius:999px; font-size:.77rem; font-weight:700;
+      background:var(--sage); color:var(--green);
+    }
+    .section-note {
+      background:#fff8e6; color:#725015; border:1px solid #efd79d; padding:10px 12px; border-radius:11px; font-size:.85rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Advanced Field Ecology</h1>
+      <p>Invasive Plant Abundance & Native Understory Diversity</p>
+      <div class="progress">
+        <div class="progress-row">
+          <span id="progressText">0 of 30 plots completed on this device</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="bar"><div id="progressBar"></div></div>
+      </div>
+    </section>
+
+    <form id="fieldForm">
+      <section class="card">
+        <h2>1. Plot Information</h2>
+        <div class="grid2">
+          <div>
+            <label for="plotId">Plot ID</label>
+            <select id="plotId" required></select>
+          </div>
+          <div>
+            <label for="forest">Forest</label>
+            <input id="forest" readonly />
+          </div>
+          <div>
+            <label for="transect">Transect</label>
+            <input id="transect" readonly />
+          </div>
+          <div>
+            <label>GPS</label>
+            <button class="btn btn-secondary btn-wide" type="button" id="gpsBtn">Get Current Location</button>
+          </div>
+          <div>
+            <label for="latitude">Latitude</label>
+            <input id="latitude" inputmode="decimal" placeholder="Auto-filled by GPS" />
+          </div>
+          <div>
+            <label for="longitude">Longitude</label>
+            <input id="longitude" inputmode="decimal" placeholder="Auto-filled by GPS" />
+          </div>
+        </div>
+        <p class="hint" id="gpsStatus">GPS is optional, but recommended for every quadrat.</p>
+      </section>
+
+      <section class="card">
+        <h2>2. Environmental Measurements</h2>
+        <div class="grid2">
+          <div><label for="canopyCover">Canopy Cover (%)</label><input id="canopyCover" type="number" min="0" max="100" step="0.1" /></div>
+          <div><label for="parLight">PAR / Light</label><input id="parLight" type="number" step="any" /></div>
+          <div><label for="soilMoisture">Soil Moisture</label><input id="soilMoisture" type="number" step="any" /></div>
+          <div><label for="soilTemperature">Soil Temperature (°C)</label><input id="soilTemperature" type="number" step="0.1" /></div>
+          <div><label for="soilPH">Soil pH</label><input id="soilPH" type="number" min="0" max="14" step="0.01" /></div>
+          <div><label for="leafLitterDepth">Leaf Litter Depth (cm)</label><input id="leafLitterDepth" type="number" min="0" step="0.1" /></div>
+          <div><label for="totalVegetationCover">Total Vegetation Cover (%)</label><input id="totalVegetationCover" type="number" min="0" max="100" step="0.1" /></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+          <div>
+            <h2 style="margin-bottom:4px;">3. Plant Species</h2>
+            <div class="tiny">Add one entry for each species inside the 2 m × 2 m quadrat.</div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="addSpeciesBtn">+ Add Species</button>
+        </div>
+        <div id="speciesList"></div>
+
+        <div class="calc">
+          <div class="metric"><strong id="nativeRichness">0</strong><span>Native richness</span></div>
+          <div class="metric"><strong id="invasiveRichness">0</strong><span>Invasive richness</span></div>
+          <div class="metric"><strong id="totalRichness">0</strong><span>Total richness</span></div>
+          <div class="metric"><strong id="nativeCover">0%</strong><span>Native cover</span></div>
+          <div class="metric"><strong id="invasiveCover">0%</strong><span>Invasive cover</span></div>
+          <div class="metric"><strong id="dominantInvasive">—</strong><span>Dominant invasive</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4. Photos & Notes</h2>
+        <div class="section-note">
+          This first version records a photo URL, not a direct camera upload. Direct image upload can be added next by saving images into Google Drive.
+        </div>
+        <div style="height:10px"></div>
+        <label for="plotPhoto">Plot Photo URL</label>
+        <input id="plotPhoto" type="url" placeholder="Optional Google Drive / image link" />
+        <div style="height:12px"></div>
+        <label for="notes">Site Notes / Unusual Conditions</label>
+        <textarea id="notes" placeholder="Examples: trail edge, standing water, recent disturbance, heavy deer browse..."></textarea>
+      </section>
+
+      <section class="card review" id="reviewCard">
+        <h2>Review</h2>
+        <table id="reviewTable"></table>
+      </section>
+
+      <div id="statusBox" class="status"></div>
+
+      <div class="sticky">
+        <div class="actions">
+          <button class="btn btn-secondary" type="button" id="reviewBtn">Review Plot</button>
+          <button class="btn btn-primary" type="submit" id="submitBtn" style="flex:1;">Submit Plot</button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <template id="speciesTemplate">
+    <div class="species-card">
+      <div class="species-head">
+        <h3>Species <span class="species-number"></span></h3>
+        <button type="button" class="btn btn-danger remove-species">Remove</button>
+      </div>
+      <div class="grid2">
+        <div>
+          <label>Species Name</label>
+          <input class="sp-name" placeholder="e.g., Garlic mustard" />
+        </div>
+        <div>
+          <label>Status</label>
+          <select class="sp-status">
+            <option value="">Select</option>
+            <option>Native</option>
+            <option>Invasive</option>
+            <option>Unknown</option>
+          </select>
+        </div>
+        <div>
+          <label>Growth Form</label>
+          <select class="sp-growth">
+            <option value="">Select</option>
+            <option>Forb</option>
+            <option>Grass</option>
+            <option>Sedge</option>
+            <option>Vine</option>
+            <option>Shrub</option>
+            <option>Tree Seedling</option>
+            <option>Fern</option>
+            <option>Other</option>
+            <option>Unknown</option>
+          </select>
+        </div>
+        <div>
+          <label>Percent Cover</label>
+          <input class="sp-cover" type="number" min="0" max="100" step="0.1" />
+        </div>
+        <div>
+          <label>Count / Abundance</label>
+          <input class="sp-count" type="number" min="0" step="1" />
+        </div>
+        <div>
+          <label>Species Photo URL</label>
+          <input class="sp-photo" type="url" placeholder="Optional" />
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <label>Identification Notes</label>
+      <textarea class="sp-notes" placeholder="Useful for unknown species or field ID notes."></textarea>
+    </div>
+  </template>
+
+  <script>
+    const API_URL = "https://script.google.com/a/macros/fomusic.org/s/AKfycbweE5xm7WphV3XHsXtlqM4Sd6wQEyKnufdQs-4_9ZJ2pLuGZWu7NPuyLqSpaOYl_xvrSA/exec";
+    const plotIdEl = document.getElementById('plotId');
+    const forestEl = document.getElementById('forest');
+    const transectEl = document.getElementById('transect');
+    const speciesList = document.getElementById('speciesList');
+    const template = document.getElementById('speciesTemplate');
+
+    const plots = [];
+    ['EW','WW'].forEach(code => {
+      for (let i=1; i<=15; i++) {
+        plots.push({
+          id: `${code}-${String(i).padStart(2,'0')}`,
+          forest: code === 'EW' ? 'East Woods' : 'West Woods',
+          transect: Math.floor((i-1)/5)+1
+        });
+      }
+    });
+
+    function loadPlots() {
+      plotIdEl.innerHTML = '<option value="">Select a plot</option>' +
+        plots.map(p => `<option value="${p.id}">${p.id}</option>`).join('');
+    }
+
+    function updatePlotMeta() {
+      const p = plots.find(x => x.id === plotIdEl.value);
+      forestEl.value = p ? p.forest : '';
+      transectEl.value = p ? p.transect : '';
+    }
+
+    function addSpecies(data={}) {
+      const node = template.content.cloneNode(true);
+      const card = node.querySelector('.species-card');
+      card.querySelector('.sp-name').value = data.speciesName || '';
+      card.querySelector('.sp-status').value = data.status || '';
+      card.querySelector('.sp-growth').value = data.growthForm || '';
+      card.querySelector('.sp-cover').value = data.percentCover ?? '';
+      card.querySelector('.sp-count').value = data.count ?? '';
+      card.querySelector('.sp-photo').value = data.photo || '';
+      card.querySelector('.sp-notes').value = data.notes || '';
+      card.querySelector('.remove-species').addEventListener('click', () => {
+        card.remove(); renumberSpecies(); calculate();
+      });
+      card.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', calculate));
+      speciesList.appendChild(node);
+      renumberSpecies();
+      calculate();
+    }
+
+    function renumberSpecies() {
+      [...speciesList.querySelectorAll('.species-card')].forEach((card, idx) => {
+        card.querySelector('.species-number').textContent = idx + 1;
+      });
+    }
+
+    function getSpecies() {
+      return [...speciesList.querySelectorAll('.species-card')].map(card => ({
+        speciesName: card.querySelector('.sp-name').value.trim(),
+        status: card.querySelector('.sp-status').value,
+        growthForm: card.querySelector('.sp-growth').value,
+        percentCover: Number(card.querySelector('.sp-cover').value || 0),
+        count: card.querySelector('.sp-count').value === '' ? '' : Number(card.querySelector('.sp-count').value),
+        photo: card.querySelector('.sp-photo').value.trim(),
+        notes: card.querySelector('.sp-notes').value.trim()
+      })).filter(x => x.speciesName || x.status || x.percentCover || x.count !== '');
+    }
+
+    function calculate() {
+      const sp = getSpecies();
+      const native = sp.filter(x => x.status === 'Native');
+      const invasive = sp.filter(x => x.status === 'Invasive');
+      const knownSpecies = sp.filter(x => x.speciesName);
+      const uniq = arr => [...new Set(arr.map(x => x.speciesName.toLowerCase()).filter(Boolean))].length;
+      const nativeRichness = uniq(native);
+      const invasiveRichness = uniq(invasive);
+      const totalRichness = uniq(knownSpecies);
+      const nativeCover = native.reduce((a,b)=>a+(Number(b.percentCover)||0),0);
+      const invasiveCover = invasive.reduce((a,b)=>a+(Number(b.percentCover)||0),0);
+      const dominant = [...invasive].sort((a,b)=>(b.percentCover||0)-(a.percentCover||0))[0]?.speciesName || '—';
+
+      document.getElementById('nativeRichness').textContent = nativeRichness;
+      document.getElementById('invasiveRichness').textContent = invasiveRichness;
+      document.getElementById('totalRichness').textContent = totalRichness;
+      document.getElementById('nativeCover').textContent = `${nativeCover.toFixed(1).replace('.0','')}%`;
+      document.getElementById('invasiveCover').textContent = `${invasiveCover.toFixed(1).replace('.0','')}%`;
+      document.getElementById('dominantInvasive').textContent = dominant;
+
+      return {nativeRichness,invasiveRichness,totalRichness,nativeCover,invasiveCover,dominant};
+    }
+
+    function num(id) {
+      const v = document.getElementById(id).value;
+      return v === '' ? '' : Number(v);
+    }
+
+    function buildPayload() {
+      const calc = calculate();
+      const p = plots.find(x => x.id === plotIdEl.value);
+      return {
+        plot: {
+          plotId: plotIdEl.value,
+          forest: p?.forest || '',
+          transect: p?.transect || '',
+          latitude: num('latitude'),
+          longitude: num('longitude'),
+          plotPhoto: document.getElementById('plotPhoto').value.trim(),
+          canopyCover: num('canopyCover'),
+          parLight: num('parLight'),
+          soilMoisture: num('soilMoisture'),
+          soilTemperature: num('soilTemperature'),
+          soilPH: num('soilPH'),
+          leafLitterDepth: num('leafLitterDepth'),
+          totalVegetationCover: num('totalVegetationCover'),
+          nativeSpeciesRichness: calc.nativeRichness,
+          invasiveSpeciesRichness: calc.invasiveRichness,
+          totalSpeciesRichness: calc.totalRichness,
+          nativePlantCover: calc.nativeCover,
+          invasivePlantCover: calc.invasiveCover,
+          dominantInvasiveSpecies: calc.dominant === '—' ? '' : calc.dominant,
+          shannonIndex: '',
+          notes: document.getElementById('notes').value.trim()
+        },
+        species: getSpecies()
+      };
+    }
+
+    function showStatus(msg, ok=true) {
+      const el = document.getElementById('statusBox');
+      el.textContent = msg;
+      el.className = 'status show ' + (ok ? 'ok' : 'err');
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    function updateProgress() {
+      const completed = JSON.parse(localStorage.getItem('afeCompletedPlots') || '[]');
+      const n = [...new Set(completed)].length;
+      const pct = Math.round((n/30)*100);
+      document.getElementById('progressText').textContent = `${n} of 30 plots completed on this device`;
+      document.getElementById('progressPct').textContent = `${pct}%`;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+    }
+
+    document.getElementById('gpsBtn').addEventListener('click', () => {
+      const status = document.getElementById('gpsStatus');
+      if (!navigator.geolocation) {
+        status.textContent = 'Geolocation is not supported by this browser.';
+        return;
+      }
+      status.textContent = 'Getting location...';
+      navigator.geolocation.getCurrentPosition(pos => {
+        document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
+        status.textContent = `Location captured (accuracy about ${Math.round(pos.coords.accuracy)} m).`;
+      }, err => {
+        status.textContent = 'Could not get location. You can type coordinates manually.';
+      }, {enableHighAccuracy:true, timeout:12000});
+    });
+
+    document.getElementById('reviewBtn').addEventListener('click', () => {
+      if (!plotIdEl.value) {
+        showStatus('Select a Plot ID before reviewing.', false);
+        return;
+      }
+      const data = buildPayload();
+      const rows = [
+        ['Plot', data.plot.plotId],
+        ['Forest / Transect', `${data.plot.forest} / ${data.plot.transect}`],
+        ['GPS', data.plot.latitude && data.plot.longitude ? `${data.plot.latitude}, ${data.plot.longitude}` : 'Not recorded'],
+        ['Native richness', data.plot.nativeSpeciesRichness],
+        ['Invasive richness', data.plot.invasiveSpeciesRichness],
+        ['Total richness', data.plot.totalSpeciesRichness],
+        ['Native cover', `${data.plot.nativePlantCover}%`],
+        ['Invasive cover', `${data.plot.invasivePlantCover}%`],
+        ['Dominant invasive', data.plot.dominantInvasiveSpecies || 'None recorded'],
+        ['Species entries', data.species.length]
+      ];
+      document.getElementById('reviewTable').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td></tr>`).join('');
+      document.getElementById('reviewCard').classList.add('show');
+      document.getElementById('reviewCard').scrollIntoView({behavior:'smooth'});
+    });
+
+    document.getElementById('fieldForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!plotIdEl.value) {
+        showStatus('Select a Plot ID before submitting.', false);
+        return;
+      }
+      const data = buildPayload();
+      if (data.species.length === 0) {
+        const proceed = confirm('No plant species have been entered. Submit this plot anyway?');
+        if (!proceed) return;
+      }
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (!result.success) throw new Error(result.error || 'Submission failed.');
+
+        const completed = JSON.parse(localStorage.getItem('afeCompletedPlots') || '[]');
+        completed.push(data.plot.plotId);
+        localStorage.setItem('afeCompletedPlots', JSON.stringify(completed));
+        updateProgress();
+        showStatus(`✓ ${data.plot.plotId} was saved to your research spreadsheet.`);
+
+        const justSubmitted = data.plot.plotId;
+        e.target.reset();
+        speciesList.innerHTML = '';
+        addSpecies();
+        updatePlotMeta();
+        document.getElementById('reviewCard').classList.remove('show');
+        document.getElementById('gpsStatus').textContent = 'GPS is optional, but recommended for every quadrat.';
+        window.scrollTo({top:0,behavior:'smooth'});
+      } catch (err) {
+        console.error(err);
+        showStatus('The plot could not be saved. Check the Apps Script deployment permissions and internet connection, then try again.', false);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Plot';
+      }
+    });
+
+    plotIdEl.addEventListener('change', updatePlotMeta);
+    document.getElementById('addSpeciesBtn').addEventListener('click', () => addSpecies());
+
+    loadPlots();
+    addSpecies();
+    updateProgress();
+  </script>
+</body>
+</html>
